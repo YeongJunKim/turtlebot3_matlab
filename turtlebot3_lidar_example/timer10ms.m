@@ -12,25 +12,31 @@ end
 %msg = [event_type txt1 event_time];
 %disp(msg)
 
-fprintf('timer\r\n')
+% fprintf('timer\r\n')
 
-topic.lidar = receive(sub.turtlebot3_lidar)
+topic.lidar = receive(sub.turtlebot3_lidar);
 
 %disp(topic.lidar.Ranges)
 
 %draw_plot = zeros(360);
 
-scatter(0,0,'filled', 'MarkerFaceColor', 'r')
-
-oneto360 = [1:360];
+oneto360 = 1:360;
 
 rotate(:,1) = topic.lidar.Ranges.*cos(oneto360*pi/180)';
 rotate(:,2) = topic.lidar.Ranges.*sin(oneto360*pi/180)';
 
-plot(rotate(:,1),rotate(:,2),'c*');
+scatter(0,0,'filled', 'MarkerFaceColor', 'r')
+hold on;
+heading = quiver(0,0,0.5,0, 'LineWidth', 1.8, 'MaxHeadSize', 3, 'ShowArrowHead', 'on');
+hold on;
+
+point_cloud = plot(rotate(:,1),rotate(:,2),'c*');
+legend([heading, point_cloud], 'heading angle', 'points');
+hold off;
 xlim([-5 5])
 ylim([-5 5]) 
 drawnow;
+
 % delete(draw_plot);
    
 % for i = 1:5:360
@@ -51,11 +57,4 @@ drawnow;
 
 % delete(draw_lidar)
 
-end
-
-function res = rot(rad,state)
-mat = zeros(2,2);
-mat = [cos(rad), -1*sin(rad);
-    sin(rad), cos(rad)];
-res = mat * state;
 end

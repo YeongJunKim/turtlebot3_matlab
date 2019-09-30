@@ -3,13 +3,10 @@ clear all
 clc
 
 path = '../../matlab/filters/';
-
-addpath(path);
+addpath(genpath(path));
 
 Localization_EKF = SETTING("EKF");
 Localization_PEFFME = SETTING("PEFFME");
-
-
 
 scenario = 1;
 % 1: Ideal case

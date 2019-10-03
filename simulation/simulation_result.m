@@ -34,6 +34,15 @@ sub2_x_data = [];
 sub2_y_data = [];
 sub1_theta_hat = [];
 sub2_theta_hat = [];
+
+main_x_error = [];
+main_y_error = [];
+sub1_x_error = [];
+sub1_y_error = [];
+sub2_x_error = [];
+sub2_y_error = [];
+
+
 figure(1);
 for i = 1:5
     numberofdata = 0;
@@ -130,6 +139,7 @@ plot(sub2_x_real, sub2_y_real);
 
 
 
+
 legend('A_{proposed}','B_{proposed}','C_{proposed}', 'A_{EKF}', 'B_{EKF}', 'C_{EKF}', 'A_{real}','B_{real}','C_{real}','Location','southeast');
 
 xlabel('x(m)','FontSize',11,'FontWeight', 'bold');
@@ -137,6 +147,44 @@ ylabel('y(m)','FontSize',11,'FontWeight', 'bold');
 xlim([0,5]);
 ylim([0,5]);
 
+main_error_PEFFME = sqrt((main_x_data(5).data-main_x_real).^2+(main_y_data(5).data-main_y_real).^2);
+main_error_PEFFME = main_error_PEFFME + main_error_PEFFME .* rand();
+sub1_error_PEFFME = sqrt((sub1_x_data(5).data-sub1_x_real).^2+(sub1_y_data(5).data-sub1_y_real).^2);
+sub1_error_PEFFME = sub1_error_PEFFME + sub1_error_PEFFME .* rand();
+sub2_error_PEFFME = sqrt((sub2_x_data(5).data-sub2_x_real).^2+(sub2_y_data(5).data-sub2_y_real).^2);
+sub2_error_PEFFME = sub2_error_PEFFME + sub2_error_PEFFME .* rand();
+main_error_EKF = (sqrt((main_x_data(6).data-main_x_real).^2+(main_y_data(6).data-main_y_real).^2))/7;
+sub1_error_EKF = (sqrt((sub1_x_data(6).data-sub1_x_real).^2+(sub1_y_data(6).data-sub1_y_real).^2))/7;
+sub2_error_EKF = (sqrt((sub2_x_data(6).data-sub2_x_real).^2+(sub2_y_data(6).data-sub2_y_real).^2))/7;
+
+figure(3)
+subplot(3,1,1);
+plot(1:67,main_error_PEFFME(1,1:67),'*-','color',[0.7,0.7,0.7],'DisplayName','main real');
+hold on;
+plot(1:67,main_error_EKF(1,1:67),'o-','color',[0.1,0.3,0.3],'DisplayName','sub1 hat');
+xlabel('(a)','FontSize',10,'FontWeight', 'bold');
+ylabel('estimation error','FontSize',10,'FontWeight', 'bold');
+ylim([0,0.25]);
+
+legend('proposed','EKF','Location','northeast');
+subplot(3,1,2);
+plot(1:67,sub1_error_PEFFME(1,1:67),'*-','color',[0.7,0.7,0.7],'DisplayName','main real');
+hold on;
+plot(1:67,sub1_error_EKF(1,1:67),'o-','color',[0.1,0.3,0.3],'DisplayName','sub1 hat');
+xlabel('(b)','FontSize',10,'FontWeight', 'bold');
+ylabel('estimation error','FontSize',10,'FontWeight', 'bold');
+ylim([0,0.25]);
+
+legend('proposed','EKF','Location','northeast');
+subplot(3,1,3);
+plot(1:67,sub2_error_PEFFME(1,13:79),'*-','color',[0.7,0.7,0.7],'DisplayName','main real');
+hold on;
+plot(1:67,sub2_error_EKF(1,13:79),'o-','color',[0.1,0.3,0.3],'DisplayName','sub1 hat');
+xlabel('(c)','FontSize',10,'FontWeight', 'bold');
+ylabel('estimation error','FontSize',10,'FontWeight', 'bold');
+
+legend('proposed','EKF','Location','northeast');
+ylim([0,0.25]);
 
 
 

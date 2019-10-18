@@ -32,12 +32,12 @@ classdef turtlebot3 < handle
            obj.sub_odom = rossubscriber(strcat(namespace,'/odom'), {@sub_odom_callback, obj});
            [obj.pub_control, obj.pub_control_msg] = rospublisher(strcat(namespace,'/cmd_vel'), 'geometry_msgs/Twist');
        end
+       
        function obj = turtlebot3_addSubscrier(obj, topic, callback)
            obj.sub_type(obj.addcount).data = rossubscriber(topic, {callback, obj});
            obj.sub_added(obj.addcount).data = obj.sub_type;
            obj.addcount = obj.addcount + 1;
        end
-       
        
        function r = turtlebot3_readTopicName(obj, topicName)
            if topicName == "imu"
@@ -48,6 +48,10 @@ classdef turtlebot3 < handle
                temp = rossubscriber(strcat(obj.namespace, "/",topicName));
                r = receive(temp);
            end
+       end
+       
+       function r = turtlebot3_pubTopicName(obj, topicName)
+           
        end
    end
 end

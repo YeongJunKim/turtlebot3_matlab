@@ -7,6 +7,9 @@ robot_ip = ["192.168.0.3", "192.168.0.4", "192.168.0.5"];       % add more...
 robot_namespace =["/tb3_0", "/tb3_1", "/tb3_2"];                % add more...
 time_interval = 0.2;
 
+isdeltetimer = 1;
+
+
 %% run
 addpath('turtlebot3');
 addpath('turtlebot3_ros');
@@ -14,7 +17,7 @@ addpath('turtlebot3_localization');
 addpath(genpath('../matlab/filters'));
 
 robots = turtlebot3;
-robot_num = size(robot_ip, 2);
+robot_num = size(robot_ip, 2);                                  % same as size(robot_namespace, 2);
 
 ros_deinit();
 ros_init(master_ip);
@@ -26,11 +29,12 @@ for i = 1:robot_num
     turtlebot3_init(robots(i),robot_namespace(i));
 end
 
-tmrList = timerfind()
-delete(tmrList);
-
-pause(2);
-
+%% delte all timer
+if isdeltetimer == 1
+    tmrList = timerfind()
+    delete(tmrList);
+    pause(2);
+end
 %% filter init
 %% init filter
 % Position information of Anchors

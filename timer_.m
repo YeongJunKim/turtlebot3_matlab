@@ -5,6 +5,9 @@ function timer_(obj, event, robots)
     
     if isempty(firstRun)
        step = 0; 
+       
+       %% data saving ?
+       var.data_save = 0;
               
        %% init task
        var.sub_odom_data = [];
@@ -26,12 +29,11 @@ function timer_(obj, event, robots)
            var.sub_scan_data(i).data = robots(i).sub_scan_data;
        end
        
-       % additional subscriber
+       %% additional subscriber
        pause(1);
        turtlebot3_addSubscrier(robots(1),'/read', @measurement_data);
        pause(1);
        
-
        firstRun = 1;
     end    
     step = step + 1;
@@ -50,7 +52,9 @@ function timer_(obj, event, robots)
         end
         toc;
         %% localization
-
+        % add your task here
+        
+        % add yout task end
         toc;
     end
 end
@@ -58,13 +62,20 @@ end
 
 
 
-
-
-
-
-
-
-
+function timer_end()
+    if var.data_save == 1
+       date = string(datetime('now'));
+       date = erase(date,":");
+       delimiter = "-";
+       naming = "distributed localization";
+       date = strcat(date, delimiter, naming);
+       save(date); 
+       disp("data saved!");
+    else
+       disp("no data saving mode!");
+    end
+    
+end
 
 function measurement_data(src, msg, obj)
     obj.sub_data(1).data = msg;

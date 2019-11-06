@@ -1,3 +1,5 @@
-tmrList = timerfind()
+function deleteTimer()
+tmrList = timerfind();
 delete(tmrList);
 rosshutdown
+end

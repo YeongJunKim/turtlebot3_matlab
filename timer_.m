@@ -63,6 +63,9 @@ function timer_(obj, event, robots)
         % add yout task end
         toc;
     end
+    if endflag == 1
+       timer_end(); 
+    end
 end
 
 
@@ -86,7 +89,7 @@ function timer_end()
     else
        disp("no data saving mode!");
     end
-    
+    delteTimer();
 end
 
 function measurement_data(src, msg, obj)

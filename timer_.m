@@ -30,7 +30,10 @@ function timer_(obj, event, robots)
        end
        
        
-       %% 
+       %% user variables
+       var.x_hat_save = [];
+       var.y_measurement_save = [];
+       
        
        %% additional subscriber
        pause(1);

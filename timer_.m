@@ -1,4 +1,4 @@
-function timer_(obj, event, robots)
+function timer_(obj, event, robots, filters)
     persistent step;
     persistent firstRun;
     global var;
@@ -6,8 +6,13 @@ function timer_(obj, event, robots)
     if isempty(firstRun)
        step = 0; 
        
+       %%       
+       
        %% data saving ?
-       var.data_save = 0;
+       var.data_save = 1;
+       
+       %% is it end?
+       var.endflag = 0;
               
        %% init task
        var.sub_odom_data = [];
@@ -44,9 +49,10 @@ function timer_(obj, event, robots)
     
     
     %% TASK
+    %% 
     step = step + 1;
     disp(step)
-    
+    %% 
     if step > 10
         %% get data
         tic;
@@ -57,8 +63,9 @@ function timer_(obj, event, robots)
            var.sub_imu_data(i).data = robots(i).sub_imu_data;
         end
         for i = 2:size(robots,2)
-           var.sub_scan_data(i).data = robots(i).sub_scan_data;
+           var.sub_scan_data(i).data = robots(i).sub_scan_data.Ranges;
         end
+        var.sub_measurement_data = robots(1).sub_data(1).data;
         toc;
         %% localization
         % add your task here
@@ -66,8 +73,11 @@ function timer_(obj, event, robots)
         % add yout task end
         toc;
     end
-    if endflag == 1
-       timer_end(); 
+    if step > 20
+       var.endflag = 1; 
+    end
+    if var.endflag == 1
+       timer_end(var.data_save, var); 
     end
 end
 
@@ -80,23 +90,25 @@ end
 
 
 
-function timer_end()
-    if var.data_save == 1
+function timer_end(data_save, data)
+    if data_save == 1
        date = string(datetime('now'));
        date = erase(date,":");
        delimiter = "-";
        naming = "distributed localization";
        date = strcat(date, delimiter, naming);
-       save(date); 
+       save(date, 'data');
        disp("data saved!");
     else
        disp("no data saving mode!");
     end
-    delteTimer();
+    rosshutdown
+    tmrList = timerfind();
+    delete(tmrList);
 end
 
 function measurement_data(src, msg, obj)
-    obj.sub_data(1).data = msg;
+    
     var.sub_measurement_data = msg.Data;
     var.sub_measurement_raw = extractBetween(var.sub_measurement_data,"a 1 "," b");
     if size(var.sub_measurement_raw, 1) == 0
@@ -117,4 +129,5 @@ function measurement_data(src, msg, obj)
     end
     var.sub_measurement_now = (0.001)*var.sub_measurement_now;
     disp(var.sub_measurement_now);  
+    obj.sub_data(1).data = var.sub_measurement_now;
 end

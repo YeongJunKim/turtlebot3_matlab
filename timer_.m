@@ -96,7 +96,7 @@ function timer_end(data_save, data)
        date = erase(date,":");
        delimiter = "-";
        naming = "distributed localization";
-       date = strcat(date, delimiter, naming);
+       date =  (date, delimiter, naming);
        save(date, 'data');
        disp("data saved!");
     else

@@ -30,11 +30,6 @@ target_pose2 = [-2 1]';
 target_pose3 = [2 1]';      % 목표 x,y 좌표
 z_target = [target_pose1(1) + 1i*target_pose1(2) , target_pose2(1) + 1i*target_pose2(2) , target_pose3(1) + 1i*target_pose3(2)]';
 
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% below line %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 now_pos = [];
 now_pos(1).data = [pose1(1) , pose1(2) * 1i];
 now_pos(2).data = [pose2(1) , pose2(2) * 1i];
@@ -52,9 +47,7 @@ appended_data.pose(2).value = 0;
 appended_data.pose(3).value = 0;
 appended_data.weight = zeros(robot_num, robot_num);
 clc
-now_pos(1).value = now_pos(1).data(1) + now_pos(1).data(2);
-now_pos(2).value = now_pos(2).data(1) + now_pos(2).data(2);
-now_pos(3).value = now_pos(3).data(1) + now_pos(3).data(2);
+
 
 %% Simulation
 N = 1;
@@ -63,6 +56,9 @@ for count = 1:N
     weight = zeros(robot_num, robot_num);
     eigenvector = zeros(robot_num, 1);
     laplacian = zeros(robot_num, robot_num);
+    now_pos(1).value = now_pos(1).data(1) + now_pos(1).data(2);
+    now_pos(2).value = now_pos(2).data(1) + now_pos(2).data(2);
+    now_pos(3).value = now_pos(3).data(1) + now_pos(3).data(2);
     
     % Determine weight values (식 (5)나 그 위에있는 내용 참고)
     for i = 1:robot_num
@@ -94,15 +90,11 @@ for count = 1:N
             k = 1;
         end
         laplacian(i, i) = weight(i, j) + weight(i, k);
-        disp(laplacian)
         laplacian = laplacian - weight;
     end
     disp("Laplacian : ");
     disp(laplacian);
     % Design K
-    [L, U, P] = lu(laplacian);    
-    laplacian - P'*L*U
-    
     
     
 %     z_dot = ?
@@ -114,6 +106,6 @@ for count = 1:N
 %     plot(real(z(3)),imag(z(3)),'go'); hold off;
 %     drawnow;
 
-    % save simulation data
+    data
     
 end

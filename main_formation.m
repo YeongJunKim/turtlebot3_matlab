@@ -35,6 +35,13 @@ z_target = [target_pose1(1) + 1i*target_pose1(2) , target_pose2(1) + 1i*target_p
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% below line %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+target_pos(1).data = [target_pose1(1), target_pose1(2) * 1i];
+target_pos(2).data = [target_pose2(1), target_pose2(2) * 1i];
+target_pos(3).data = [target_pose3(1), target_pose3(2) * 1i];
+target_pos(1).value = 0;
+target_pos(2).value = 0;
+target_pos(3).value = 0;
+
 now_pos = [];
 now_pos(1).data = [pose1(1) , pose1(2) * 1i];
 now_pos(2).data = [pose2(1) , pose2(2) * 1i];
@@ -42,6 +49,8 @@ now_pos(3).data = [pose3(1) , pose3(2) * 1i];
 now_pos(1).value = 0;
 now_pos(2).value = 0;
 now_pos(3).value = 0;
+now_value_vector= zeros(robot_num, 1);
+now_weight = zeros(robot_num, robot_num);
 
 appended_data = [];
 appended_data.pose(1).data = now_pos(1).data;
@@ -51,10 +60,20 @@ appended_data.pose(1).value = 0;
 appended_data.pose(2).value = 0;
 appended_data.pose(3).value = 0;
 appended_data.weight = zeros(robot_num, robot_num);
+appended_data.vector = zeros(robot_num, 1);
+
 clc
 now_pos(1).value = now_pos(1).data(1) + now_pos(1).data(2);
 now_pos(2).value = now_pos(2).data(1) + now_pos(2).data(2);
 now_pos(3).value = now_pos(3).data(1) + now_pos(3).data(2);
+
+target_pos(1).value = target_pos(1).data(1) + target_pos(1).data(2);
+target_pos(2).value = target_pos(2).data(1) + target_pos(2).data(2);
+target_pos(3).value = target_pos(3).data(1) + target_pos(3).data(2);
+
+target_pos.data
+target_pos.value
+
 
 %% Simulation
 N = 1;
@@ -63,6 +82,14 @@ for count = 1:N
     weight = zeros(robot_num, robot_num);
     eigenvector = zeros(robot_num, 1);
     laplacian = zeros(robot_num, robot_num);
+    v = zeros(1, 3);
+    K = diag(v);
+    
+    % update pos
+    
+    % now pos data
+    
+    pos_val = [now_pos(1).value, now_pos(2).value, now_pos(3).value]'
     
     % Determine weight values (식 (5)나 그 위에있는 내용 참고)
     for i = 1:robot_num
@@ -74,13 +101,17 @@ for count = 1:N
         if(k == robot_num + 1)
            k = 1;
         end
-        random_weight = (rand()*5 + rand()*10*1i);
+        
+        random_weight = (round(mod(rand()*5+1, 10)) + round(mod(rand()*5+1, 10))*1i);
         weight(i, j) = random_weight*(now_pos(k).value - now_pos(i).value);
-        random_weight = (rand()*5 + rand()*10*1i);
+        random_weight = (round(mod(rand()*5+1, 10)) + round(mod(rand()*5+1, 10))*1i);
         weight(i, k) = random_weight*(now_pos(k).value - now_pos(i).value);
         
-        weight;
+%         weight(j, i) = weight(i, j);
+%         weight(k, i) = weight(i, k);
     end
+    
+    laplacian = -weight;
     % Determine L (Laplacian matrix)
     disp("weight : ");
     disp(weight);
@@ -93,12 +124,11 @@ for count = 1:N
         if(k == robot_num + 1)
             k = 1;
         end
-        laplacian(i, i) = weight(i, j) + weight(i, k);
-        disp(laplacian)
-        laplacian = laplacian - weight;
+        laplacian(i, i) = -(laplacian(i, j) + laplacian(i, k));
     end
     disp("Laplacian : ");
     disp(laplacian);
+    
     % Design K
     [L, U, P] = lu(laplacian);    
     laplacian - P'*L*U
@@ -115,5 +145,28 @@ for count = 1:N
 %     drawnow;
 
     % save simulation data
-    
 end
+
+function r=getPoseValueFromData(data)
+
+    value1 = data(1).data(1) + data(1).data(2);
+    value2 = data(2).data(1) + data(2).data(2);
+    value3 = data(3).data(1) + data(3).data(2);
+
+    r = [value1, value2, value3]';
+end
+
+
+function r = dataToValue(data)
+    data(1).value = data(1).data(1) + data(1).data(2);
+    data(2).value = data(2).data(1) + data(2).data(2);
+    data(3).value = data(3).data(1) + data(3).data(2);
+end
+
+
+
+
+
+
+
+

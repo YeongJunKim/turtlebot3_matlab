@@ -102,10 +102,10 @@ for count = 1:N
            k = 1;
         end
         
-        random_weight = (round(mod(rand()*5+1, 10)) + round(mod(rand()*5+1, 10))*1i);
+        random_weight = 1; % = (round(mod(rand()*5+1, 10)) + round(mod(rand()*5+1, 10))*1i);
         weight(i, j) = random_weight*(now_pos(k).value - now_pos(i).value);
-        random_weight = (round(mod(rand()*5+1, 10)) + round(mod(rand()*5+1, 10))*1i);
-        weight(i, k) = random_weight*(now_pos(k).value - now_pos(i).value);
+        random_weight = 1; % = (round(mod(rand()*5+1, 10)) + round(mod(rand()*5+1, 10))*1i);
+        weight(i, k) = random_weight*(now_pos(i).value - now_pos(j).value);
         
 %         weight(j, i) = weight(i, j);
 %         weight(k, i) = weight(i, k);
@@ -113,6 +113,7 @@ for count = 1:N
     
     laplacian = -weight;
     % Determine L (Laplacian matrix)
+    % L의 rank는 2로 가주앙
     disp("weight : ");
     disp(weight);
     for i = 1:robot_num
@@ -130,8 +131,10 @@ for count = 1:N
     disp(laplacian);
     
     % Design K
-    [L, U, P] = lu(laplacian);    
-    laplacian - P'*L*U
+    C = laplacian;
+    [L, U, P] = lu(C);    
+    [Q, R] = qr(C,0);
+%     laplacian - P'*L*U
     
     
     
@@ -142,31 +145,40 @@ for count = 1:N
 %     plot(real(z(1)),imag(z(1)),'ro'); hold on;
 %     plot(real(z(2)),imag(z(2)),'bo');
 %     plot(real(z(3)),imag(z(3)),'go'); hold off;
+    p1 = plot(real(pos_val(1)),imag(pos_val(1)), '*');
+    hold on;
+    p2 = plot(real(pos_val(2)),imag(pos_val(2)), '*');
+    hold on;
+    p3 = plot(real(pos_val(3)),imag(pos_val(3)), '*');
+    xlim([-50, 50]);
+    ylim([-50, 50]);
+    drawnow;
+    pause(0.5);
 %     drawnow;
-
+    
     % save simulation data
 end
 
-function r=getPoseValueFromData(data)
-
-    value1 = data(1).data(1) + data(1).data(2);
-    value2 = data(2).data(1) + data(2).data(2);
-    value3 = data(3).data(1) + data(3).data(2);
-
-    r = [value1, value2, value3]';
-end
-
-
-function r = dataToValue(data)
-    data(1).value = data(1).data(1) + data(1).data(2);
-    data(2).value = data(2).data(1) + data(2).data(2);
-    data(3).value = data(3).data(1) + data(3).data(2);
-end
 
 
 
+
+% 
+% LL = [-1-1i, 2, -1+1i;
+%     1+1i, -2, 1-1i;
+%     1+1i, -2, 1-1i];
+% rank(LL)
+% rank(laplacian)
+% rank(L)
+% rank(U)
+% rank(P)
+% L
+% U
+% P
 
 
 
 
 
+
+ 

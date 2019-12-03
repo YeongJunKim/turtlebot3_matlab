@@ -71,10 +71,10 @@ for iteration = 1:N
 %                 random_complex = random + randomi * 1i;
 %                 L(i,k) = L(i,k) + random_complex*(z_target(i) - z_target(j));
 %                 count = count + 1
-                random_complex = 1;
-                fprintf("%d, %d, %d", i,j,k)
-                L(i,j) = L(i,j) + random_complex*(z_target(k) - z_target(i));
-                L(i,k) = L(i,k) + random_complex*(z_target(i) - z_target(j));
+%                 random_complex = 1;
+%                 fprintf("%d, %d, %d", i,j,k)
+%                 L(i,j) = L(i,j) + random_complex*(z_target(k) - z_target(i));
+%                 L(i,k) = L(i,k) + random_complex*(z_target(i) - z_target(j));
 %                 L
             end
         end
@@ -119,7 +119,7 @@ count = 0
     z_dot(num_robot) = -z_dot(num_robot-1);
     
     zdiff = z - z_target;
-    z
+    
     zdiff
 	z = z + z_dot * dt;
 %     z_dot

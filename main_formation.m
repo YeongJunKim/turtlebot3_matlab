@@ -109,7 +109,7 @@ for count = 1:N
     
     
     
-%     pos_val = [now_pos(1).value, now_pos(2).value, now_pos(3).value]'
+     pos_val = [now_pos(1).value, now_pos(2).value, now_pos(3).value]'
     
     % Determine weight values (식 (5)나 그 위에있는 내용 참고)
 %     for i = 1:robot_num
@@ -181,14 +181,15 @@ for count = 1:N
     zeros(robot_num-2)
     V_(1:robot_num-2,1:robot_num-2)
     K = place(zeros(robot_num-2),V_(1:robot_num-2,1:robot_num-2),[3]);
+%     K = place(zeros(robot_num-2),laplacian(1:robot_num-2,1:robot_num-2),[3]);
     K = K / U_(1:robot_num-2,1:robot_num-2);
     K = [K zeros(robot_num-2,2) ; zeros(2, robot_num-2) eye(2)];
     
     
     
-    z_dot = zeros(num_robot,1);
-    for i = 1:num_robot-2       % Followers
-        for j = 1:num_robot
+    z_dot = zeros(robot_num,1);
+    for i = 1:robot_num-2       % Followers
+        for j = 1:robot_num
             if j == i
                 continue;
             end
@@ -196,10 +197,10 @@ for count = 1:N
 %             z_dot(i) = z_dot(i) + K(i,i) * (z(j) - z(i));
         end
     end
-    d_bar = norm(z_target(num_robot) - z_target(num_robot-1));
-    diff_leaders = z(num_robot) - z(num_robot-1);
-    z_dot(num_robot-1) = alpha * diff_leaders * (norm(diff_leaders)^2 - d_bar^2);
-    z_dot(num_robot) = -z_dot(num_robot-1);
+    d_bar = norm(z_target(robot_num) - z_target(robot_num-1));
+    diff_leaders = z(robot_num) - z(robot_num-1);
+    z_dot(robot_num-1) = alpha * diff_leaders * (norm(diff_leaders)^2 - d_bar^2);
+    z_dot(robot_num) = -z_dot(robot_num-1);
     z
 	z = z + z_dot * dt;
     

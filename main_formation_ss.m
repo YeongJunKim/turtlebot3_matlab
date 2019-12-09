@@ -18,7 +18,7 @@ clear all
 % close all
 clf
 %% Initialize
-dt = 0.01;           % Sampling time, 단위: 초
+dt = 0.05;           % Sampling time, 단위: 초
 num_robot = 3;      % 로봇 개수
 
 alpha = 0.005;       % 식 (12)
@@ -48,7 +48,7 @@ legend(ax,{'target1','target2','target3','robot1(follower)','robot2','robot3'},'
     xlim([-10, 10]);
     ylim([-10, 10]);
 %% Simulation
-N = 200;
+N = 100;
 count = 0
 for iteration = 1:N
     %% Determine weight values (식 (5)나 그 위에있는 내용 참고)
@@ -85,7 +85,7 @@ for iteration = 1:N
 count = 0
             L
     %% Design K
-    poles = [5];                        % n-2 개의 poles
+    poles = [3];                        % n-2 개의 poles
     [U_svd,S_svd,V_svd] = svd(L);       % Singular value decomposition
     S_sqrt = sqrt(S_svd);
     U = U_svd(:,1:num_robot-2) * S_sqrt(1:num_robot-2,1:num_robot-2)';

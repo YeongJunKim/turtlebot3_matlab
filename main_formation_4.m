@@ -15,22 +15,24 @@
 % 추가로 하면 좋은 것: 로봇 대수 늘리고 다양한 형태의 그래프에 대해서도 해보기
 clear
 %% Initialize
-dt = 0.03;           % Sampling time, 단위: 초
-robot_num = 3;      % 로봇 개수
+dt = 0.02;           % Sampling time, 단위: 초
+robot_num = 4;      % 로봇 개수
 
-alpha = 0.01;          % 식 (12)
+alpha = 0.02;          % 식 (12)
 k = [1 1 1]';       % 식 (13)
 
 pose1 = [5 -5];
 pose2 = [-5 3];
 pose3 = [8 -3];     % 처음 로봇들 위치 x,y 좌표
-z = [pose1(1) + 1i*pose1(2) , pose2(1) + 1i*pose2(2) , pose3(1) + 1i*pose3(2)]';    % Aggregate state
+pose4 = [-8  8];
+z = [pose1(1) + 1i*pose1(2) , pose2(1) + 1i*pose2(2) , pose3(1) + 1i*pose3(2), pose4(1) + 1i*pose4(2)]';    % Aggregate state
 z
 
 target_pose1 = [0 -3]';
 target_pose2 = [-2 1]';
 target_pose3 = [2 1]';      % 목표 x,y 좌표
-z_target = [target_pose1(1) + 1i*target_pose1(2) , target_pose2(1) + 1i*target_pose2(2) , target_pose3(1) + 1i*target_pose3(2)]';
+target_pose4 = [4 1]';      
+z_target = [target_pose1(1) + 1i*target_pose1(2) , target_pose2(1) + 1i*target_pose2(2) , target_pose3(1) + 1i*target_pose3(2), target_pose4(1) + 1i*target_pose4(2)]';
 
 
 
@@ -42,17 +44,21 @@ s = z;
 target_pos(1).data = [target_pose1(1), target_pose1(2) * 1i];
 target_pos(2).data = [target_pose2(1), target_pose2(2) * 1i];
 target_pos(3).data = [target_pose3(1), target_pose3(2) * 1i];
+target_pos(4).data = [target_pose4(1), target_pose4(2) * 1i];
 target_pos(1).value = 0;
 target_pos(2).value = 0;
 target_pos(3).value = 0;
+target_pos(4).value = 0;
 
 now_pos = [];
 now_pos(1).data = [pose1(1) , pose1(2) * 1i];
 now_pos(2).data = [pose2(1) , pose2(2) * 1i];
 now_pos(3).data = [pose3(1) , pose3(2) * 1i];
+now_pos(4).data = [pose4(1) , pose4(2) * 1i];
 now_pos(1).value = 0;
 now_pos(2).value = 0;
 now_pos(3).value = 0;
+now_pos(4).value = 0;
 now_value_vector= zeros(robot_num, 1);
 now_weight = zeros(robot_num, robot_num);
 
@@ -74,10 +80,12 @@ clf
 now_pos(1).value = now_pos(1).data(1) + now_pos(1).data(2);
 now_pos(2).value = now_pos(2).data(1) + now_pos(2).data(2);
 now_pos(3).value = now_pos(3).data(1) + now_pos(3).data(2);
+now_pos(4).value = now_pos(4).data(1) + now_pos(4).data(2);
 
 target_pos(1).value = target_pos(1).data(1) + target_pos(1).data(2);
 target_pos(2).value = target_pos(2).data(1) + target_pos(2).data(2);
 target_pos(3).value = target_pos(3).data(1) + target_pos(3).data(2);
+target_pos(4).value = target_pos(4).data(1) + target_pos(4).data(2);
 
 target_pos.data
 target_pos.value
@@ -87,49 +95,49 @@ movement = 0.5;
 %% Simulation
 
 figure(1);
-N = 100;
+N = 250;
 appended_data1 = zeros(2, N);
 appended_data2 = zeros(2, N);
 appended_data3 = zeros(2, N);
+appended_data4 = zeros(2, N);
 for count = 1:N
+    count
     % weight matrix
     weight = zeros(robot_num, robot_num);
     eigenvector = zeros(robot_num, 1);
     laplacian = zeros(robot_num, robot_num);
-    v = zeros(1, 3);
-    K = diag(v);
     
     % update pos
     
 %     now_pos(1).value = now_pos(1).value + movement;
     random = rand();
     
-     pos_val = [now_pos(1).value, now_pos(2).value, now_pos(3).value]'
+     pos_val = [now_pos(1).value, now_pos(2).value, now_pos(3).value, now_pos(4).value]'
     
     % Determine weight values (식 (5)나 그 위에있는 내용 참고)
     % L의 rank는 2로 가주앙
-    index_i = 1;
-    index_j = 2;
-    index_k = 3;
-    L = zeros(robot_num, robot_num);
-    for robot = 1:robot_num
-       
-       random_complex= 1;
-       
-       if(index_i == robot)
-           L(index_i,index_j) = random_complex*(target_pos(index_k).value - target_pos(index_i).value);
-           L(index_i,index_k) = random_complex*(target_pos(index_i).value - target_pos(index_j).value);
-       end
-       if(index_j == robot)
-           L(index_j,index_k) = -random_complex*(target_pos(index_i).value - target_pos(index_j).value);
-           L(index_j,index_i) = -random_complex*(target_pos(index_j).value - target_pos(index_k).value);
-       end
-       if(index_k == robot)
-           L(index_k,index_i) = random_complex*(target_pos(index_j).value - target_pos(index_k).value);
-           L(index_k,index_j) = random_complex*(target_pos(index_k).value - target_pos(index_i).value);
-       end
-        L(robot, robot) = -sum(L(robot, :));
-    end
+%     index_i = 1;
+%     index_j = 2;
+%     index_k = 3;
+%     L = zeros(robot_num, robot_num);
+%     for robot = 1:robot_num
+%        
+%        random_complex= 1;
+%        
+%        if(index_i == robot)
+%            L(index_i,index_j) = random_complex*(target_pos(index_k).value - target_pos(index_i).value);
+%            L(index_i,index_k) = random_complex*(target_pos(index_i).value - target_pos(index_j).value);
+%        end
+%        if(index_j == robot)
+%            L(index_j,index_k) = -random_complex*(target_pos(index_i).value - target_pos(index_j).value);
+%            L(index_j,index_i) = -random_complex*(target_pos(index_j).value - target_pos(index_k).value);
+%        end
+%        if(index_k == robot)
+%            L(index_k,index_i) = random_complex*(target_pos(index_j).value - target_pos(index_k).value);
+%            L(index_k,index_j) = random_complex*(target_pos(index_k).value - target_pos(index_i).value);
+%        end
+%         L(robot, robot) = -sum(L(robot, :));
+%     end
     
     L = zeros(robot_num,robot_num);
     for i = 1:robot_num
@@ -159,7 +167,7 @@ for count = 1:N
     V_ = R;
     zeros(robot_num-2)
     V_(1:robot_num-2,1:robot_num-2)
-    a = place(zeros(robot_num-2),V_(1:robot_num-2,1:robot_num-2),1);
+    a = place(zeros(robot_num-2),V_(1:robot_num-2,1:robot_num-2),[1 2]);
     b = a / U_(1:robot_num-2,1:robot_num-2);
     K = [b zeros(robot_num-2,2) ; zeros(2, robot_num-2) eye(2)];
     
@@ -198,6 +206,7 @@ for count = 1:N
     pos_val(1) = z(1);
     pos_val(2) = z(2);
     pos_val(3) = z(3);
+    pos_val(4) = z(4);
     
     % draw now
     plot(real(z_target(1)), imag(z_target(1)), 'ro');
@@ -206,12 +215,16 @@ for count = 1:N
     hold on;
     plot(real(z_target(3)), imag(z_target(3)), 'go');
     hold on;
+    plot(real(z_target(4)), imag(z_target(4)), 'yo');
+    hold on;
     
     plot(real(s(1)), imag(s(1)), 'rs');
     hold on;
     plot(real(s(2)), imag(s(2)), 'bs');
     hold on;
     plot(real(s(3)), imag(s(3)), 'gs');
+    hold on;
+    plot(real(s(4)), imag(s(4)), 'ys');
     hold on;
 
     
@@ -220,6 +233,8 @@ for count = 1:N
     p2 = plot(real(pos_val(2)),imag(pos_val(2)), '*', "Color", "blue");
     hold on;
     p3 = plot(real(pos_val(3)),imag(pos_val(3)), '*', "Color", "green");
+    hold on;
+    p4 = plot(real(pos_val(4)),imag(pos_val(4)), '*', "Color", "yellow");
     hold off;
     xlim([-10, 10]);
     ylim([-10, 10]);
@@ -230,6 +245,7 @@ for count = 1:N
     appended_data1(:, count) = [real(pos_val(1)), imag(pos_val(1))];
     appended_data2(:, count) = [real(pos_val(2)), imag(pos_val(2))];
     appended_data3(:, count) = [real(pos_val(3)), imag(pos_val(3))];
+    appended_data4(:, count) = [real(pos_val(4)), imag(pos_val(4))];
 end
 
 
@@ -262,12 +278,16 @@ targetplt2 = plot(real(z_target(2)), imag(z_target(2)), 'bo');
 hold on;
 targetplt3 = plot(real(z_target(3)), imag(z_target(3)), 'go');
 hold on;
+targetplt3 = plot(real(z_target(4)), imag(z_target(4)), 'yo');
+hold on;
 
 startplt1 = plot(real(s(1)), imag(s(1)), 'rs');
 hold on;
 startplt2 = plot(real(s(2)), imag(s(2)), 'bs');
 hold on;
 startplt3 = plot(real(s(3)), imag(s(3)), 'gs');
+hold on;
+startplt3 = plot(real(s(4)), imag(s(4)), 'ys');
 hold on;
 
 for i = 1:N
@@ -276,6 +296,8 @@ hold on;
 plot(appended_data2(1, i), appended_data2(2, i), "*", "Color", "blue");
 hold on;
 plot(appended_data3(1, i), appended_data3(2, i), "*", "Color", "green");
+hold on;
+plot(appended_data4(1, i), appended_data4(2, i), "*", "Color", "yellow");
 hold on;
 end
 hold on;

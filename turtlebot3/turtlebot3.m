@@ -2,23 +2,32 @@ classdef turtlebot3 < handle
    properties 
        %% variable area
        %% TOPIC
-       namespace = "";    
+        namespace = "";    
        
-       sub_imu = [];
-       sub_scan = [];
-       sub_odom = [];
+        sub_imu = [];
+        sub_scan = [];
+        sub_odom = [];
        
-       sub_added = [];
-       sub_type = [];
-       sub_data = [];
-       addcount = 1;
+        sub_added = [];
+        sub_type = [];
+        sub_data = [];
+        addcount = 1;
        
-       sub_imu_data;
-       sub_scan_data;
-       sub_odom_data;
+        sub_imu_data;
+        sub_scan_data;
+        sub_odom_data;
        
-       pub_control = [];
-       pub_control_msg = [];
+        pub_control = [];
+        pub_control_msg = [];
+       
+       
+       
+       %% edit application area
+        x;
+        y;
+        
+        z; %complex number
+        theta;
        
    end
    methods
@@ -28,8 +37,8 @@ classdef turtlebot3 < handle
            % namespace  : each robot's ROS namespace ex) (ROS_NAMESPACE=colsonbot roslaunch ~)
            %subscriber
            obj.namespace = namespace;
-           obj.sub_imu = rossubscriber(strcat(namespace,'/imu'), {@sub_imu_callback, obj});
-           obj.sub_scan = rossubscriber(strcat(namespace,'/scan'), {@sub_scan_callback, obj});
+%            obj.sub_imu = rossubscriber(strcat(namespace,'/imu'), {@sub_imu_callback, obj});
+%            obj.sub_scan = rossubscriber(strcat(namespace,'/scan'), {@sub_scan_callback, obj});
            obj.sub_odom = rossubscriber(strcat(namespace,'/odom'), {@sub_odom_callback, obj});
            
            % publisher
@@ -68,4 +77,15 @@ function sub_scan_callback(src, msg, obj)
 end
 function sub_odom_callback(src, msg, obj)
     obj.sub_odom_data = msg;
+    
+    odom = obj.sub_odom_data.Pose.Pose;
+    
+    x_reals  = odom.Position.X;
+    y_images = odom.Position.Y;
+    z = x_reals + 1i * y_images;
+    obj.z = z;
+    
+    temp = [odom.Orientation.X, odom.Orientation.Y, odom.Orientation.Z, odom.Orientation.W];
+    temp = quat2eul(temp, 'ZYX');
+    obj.theta =  temp(3);
 end

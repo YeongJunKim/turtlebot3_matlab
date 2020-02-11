@@ -33,7 +33,9 @@ classdef turtlebot3 < handle
         traj = []; % trajectory of the robot
         trajmax = 0;
         trajcount = 1;
-        
+        measurement = [];
+        measurementmax = 0;
+        measurementcount = 1;
         
     end
     methods
@@ -83,6 +85,20 @@ classdef turtlebot3 < handle
             else
                 obj.traj(:,obj.trajcount) = [x, y];
                 obj.trajcount = obj.trajcount + 1;
+                r = 1;
+            end
+        end
+        function r = turtlebot3_init_2Dmeasurement(obj, size1, size2)
+           obj.measurement = zeros(size1, size2);
+           obj.measurementmax = size2;
+           obj.measurementcount = 1;
+        end
+        function r = turtlebot3_add_2Dmeasurement(obj, data)
+            if(obj.measurementmax < obj.measurementcount)
+                r = 0;
+            else
+                obj.measurement(:,obj.measurementcount) = data(:);
+                obj.measurementcount = obj.measurementcount + 1;
                 r = 1;
             end
         end

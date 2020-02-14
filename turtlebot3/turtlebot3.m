@@ -32,10 +32,23 @@ classdef turtlebot3 < handle
         
         traj = []; % trajectory of the robot
         trajmax = 0;
-        trajcount = 1;
+        trajcount = 0;
+        
         measurement = [];
         measurementmax = 0;
-        measurementcount = 1;
+        measurementcount = 0;
+        
+        lidar_data = [];
+        lidar_rotation_angle = 90;
+        lidar_accuracy = 0;
+        lidar_seq = 0;
+        lidar_xy = [];
+        
+        fig;
+        n_o_f = 0;
+        
+        
+        
         
     end
     methods
@@ -46,7 +59,7 @@ classdef turtlebot3 < handle
             %subscriber
             obj.namespace = namespace;
             %            obj.sub_imu = rossubscriber(strcat(namespace,'/imu'), {@sub_imu_callback, obj});
-            %            obj.sub_scan = rossubscriber(strcat(namespace,'/scan'), {@sub_scan_callback, obj});
+            obj.sub_scan = rossubscriber(strcat(namespace,'/scan'), {@sub_scan_callback, obj});
             obj.sub_odom = rossubscriber(strcat(namespace,'/odom'), {@sub_odom_callback, obj});
             
             % publisher
@@ -74,33 +87,62 @@ classdef turtlebot3 < handle
             
         end
         
+        
+        %% application area
         function r = turtlebot3_init_trajectory(obj, size)
             obj.traj = zeros(2, size);
             obj.trajmax = size;
             obj.trajcount = 1;
         end
         function r = turtlebot3_add_trajectory(obj, x, y)
-            if(obj.trajmax < obj.trajcount)
-                r = 0;
-            else
-                obj.traj(:,obj.trajcount) = [x, y];
-                obj.trajcount = obj.trajcount + 1;
-                r = 1;
+            if(obj.trajcount ~= 0)
+                if(obj.trajmax < obj.trajcount)
+                    r = 0;
+                else
+                    obj.traj(:,obj.trajcount) = [x, y];
+                    obj.trajcount = obj.trajcount + 1;
+                    r = 1;
+                end
             end
         end
         function r = turtlebot3_init_2Dmeasurement(obj, size1, size2)
-           obj.measurement = zeros(size1, size2);
-           obj.measurementmax = size2;
-           obj.measurementcount = 1;
+            obj.measurement = zeros(size1, size2);
+            obj.measurementmax = size2;
+            obj.measurementcount = 1;
         end
         function r = turtlebot3_add_2Dmeasurement(obj, data)
-            if(obj.measurementmax < obj.measurementcount)
-                r = 0;
-            else
-                obj.measurement(:,obj.measurementcount) = data(:);
-                obj.measurementcount = obj.measurementcount + 1;
-                r = 1;
+            if(obj.measurementcount ~= 0)
+                if(obj.measurementmax < obj.measurementcount)
+                    r = 0;
+                else
+                    obj.measurement(:,obj.measurementcount) = data(:);
+                    obj.measurementcount = obj.measurementcount + 1;
+                    r = 1;
+                end
             end
+        end
+        function r = turtlebot3_init_lidar(obj, accuracy)
+           obj.lidar_data = zeros(1, accuracy); 
+           obj.lidar_accuracy = accuracy;
+           obj.lidar_xy = zeros(2, accuracy);
+           obj.lidar_seq = 1;
+        end
+        function r = turtlebot3_init_figure(obj, fig_size)
+%            obj.fig = figure('Name',obj.namespace, "IntegerHandle", "off");
+            obj.fig = figure('Name',obj.namespace);
+        end
+        function r = turtlebot3_focusing_figure(obj)
+            figure(obj.fig);
+        end
+        function r = turtlebot3_visualize_lidar(obj)
+            figure(obj.fig);
+            plot(obj.lidar_xy(1,:), obj.lidar_xy(2,:));
+            xlim([-5 5]);
+            ylim([-5 5]);
+        end
+        function r = turtlebot3_visualize_trajectory(obj)
+            figure(obj.fig);
+            plot(obj.traj(1,:), obj.traj(2,:));
         end
     end
 end
@@ -111,13 +153,18 @@ obj.sub_imu_data = msg;
 end
 function sub_scan_callback(src, msg, obj)
 obj.sub_scan_data = msg;
+if(obj.lidar_seq ~= 0)
+    obj.lidar_seq = obj.lidar_seq + 1;
+    obj.lidar_data(:) = obj.sub_scan_data.Ranges(:);
+    x = obj.lidar_data(:)' .* cos(deg2rad(1+obj.lidar_rotation_angle:obj.lidar_accuracy+obj.lidar_rotation_angle));
+    y = obj.lidar_data(:)' .* sin(deg2rad(1+obj.lidar_rotation_angle:obj.lidar_accuracy+obj.lidar_rotation_angle));
+    obj.lidar_xy(1,:) = x(:); obj.lidar_xy(2,:) = y(:);
+end
 end
 function sub_odom_callback(src, msg, obj)
 obj.sub_odom_data = msg;
-
 odom = obj.sub_odom_data.Pose.Pose;
-
-x_  = odom.Position.X;
+x_ = odom.Position.X;
 y_ = odom.Position.Y;
 z_ = x_ + 1i * y_;
 obj.x = x_;

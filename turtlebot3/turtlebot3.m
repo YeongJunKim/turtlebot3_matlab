@@ -1,3 +1,6 @@
+%% KOREA UNIVERCITY
+%% author : colson@korea.ac.kr(dud3722000@naver.com)
+
 classdef turtlebot3 < handle
     properties
         %% variable area
@@ -20,10 +23,11 @@ classdef turtlebot3 < handle
         pub_control = [];
         pub_control_msg = [];
         
-        
+        max_vel = [];
         
         
         %% edit application area
+        
         x = 0;
         y = 0;
         
@@ -84,7 +88,9 @@ classdef turtlebot3 < handle
         end
         
         function r = turtlebot3_pubTopicName(obj, topicName)
-            
+            if(topicName == "cmd_vel")
+            else
+            end
         end
         
         
@@ -93,6 +99,7 @@ classdef turtlebot3 < handle
             obj.traj = zeros(2, size);
             obj.trajmax = size;
             obj.trajcount = 1;
+            r = "ok";
         end
         function r = turtlebot3_add_trajectory(obj, x, y)
             if(obj.trajcount ~= 0)
@@ -109,6 +116,7 @@ classdef turtlebot3 < handle
             obj.measurement = zeros(size1, size2);
             obj.measurementmax = size2;
             obj.measurementcount = 1;
+            r = "ok";
         end
         function r = turtlebot3_add_2Dmeasurement(obj, data)
             if(obj.measurementcount ~= 0)
@@ -126,23 +134,34 @@ classdef turtlebot3 < handle
            obj.lidar_accuracy = accuracy;
            obj.lidar_xy = zeros(2, accuracy);
            obj.lidar_seq = 1;
+            r = "ok";
         end
         function r = turtlebot3_init_figure(obj, fig_size)
-%            obj.fig = figure('Name',obj.namespace, "IntegerHandle", "off");
+            %% This method creat figures infinitly.
+            % obj.fig = figure('Name',obj.namespace, "IntegerHandle", "off");
+            %% Changed method is as follow.
             obj.fig = figure('Name',obj.namespace);
+            r = "ok";
         end
         function r = turtlebot3_focusing_figure(obj)
             figure(obj.fig);
+            r = "ok";
         end
         function r = turtlebot3_visualize_lidar(obj)
             figure(obj.fig);
             plot(obj.lidar_xy(1,:), obj.lidar_xy(2,:));
             xlim([-5 5]);
             ylim([-5 5]);
+            r = "ok";
         end
         function r = turtlebot3_visualize_trajectory(obj)
             figure(obj.fig);
             plot(obj.traj(1,:), obj.traj(2,:));
+            r = "ok";
+        end
+        function r = turtlebot3_lidar_clustering(obj, neighbors)
+            
+            r = "ok";
         end
     end
 end
@@ -160,6 +179,7 @@ if(obj.lidar_seq ~= 0)
     y = obj.lidar_data(:)' .* sin(deg2rad(1+obj.lidar_rotation_angle:obj.lidar_accuracy+obj.lidar_rotation_angle));
     obj.lidar_xy(1,:) = x(:); obj.lidar_xy(2,:) = y(:);
 end
+
 end
 function sub_odom_callback(src, msg, obj)
 obj.sub_odom_data = msg;

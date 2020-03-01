@@ -52,7 +52,7 @@ classdef turtlebot3 < handle
         n_o_f = 0;
         
         
-        
+        imu_theta = 0;
         
     end
     methods
@@ -62,7 +62,7 @@ classdef turtlebot3 < handle
             % namespace  : each robot's ROS namespace ex) (ROS_NAMESPACE=colsonbot roslaunch ~)
             %subscriber
             obj.namespace = namespace;
-            %            obj.sub_imu = rossubscriber(strcat(namespace,'/imu'), {@sub_imu_callback, obj});
+            obj.sub_imu = rossubscriber(strcat(namespace,'/imu'), {@sub_imu_callback, obj});
             obj.sub_scan = rossubscriber(strcat(namespace,'/scan'), {@sub_scan_callback, obj});
             obj.sub_odom = rossubscriber(strcat(namespace,'/odom'), {@sub_odom_callback, obj});
             
@@ -169,6 +169,13 @@ end
 %% callback
 function sub_imu_callback(src, msg, obj)
 obj.sub_imu_data = msg;
+obj.sub_imu_data;
+% obj.imu_theta = obj.sub_imu_data.Orientation.W;
+imu = obj.sub_imu_data.Orientation;
+temp = [imu.X imu.Y imu.Z imu.W];
+temp = quat2eul(temp, 'ZYX');
+obj.imu_theta = temp(3);
+
 end
 function sub_scan_callback(src, msg, obj)
 obj.sub_scan_data = msg;

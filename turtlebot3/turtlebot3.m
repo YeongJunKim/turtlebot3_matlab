@@ -32,7 +32,8 @@ classdef turtlebot3 < handle
         y = 0;
         
         z; %complex number
-        theta;
+        initial_theta = 0;
+        theta = 0;
         
         traj = []; % trajectory of the robot
         trajmax = 0;
@@ -51,8 +52,13 @@ classdef turtlebot3 < handle
         fig;
         n_o_f = 0;
         
-        
+        % get from imu filtered data
+        imu_initial_theta = 0;
         imu_theta = 0;
+        
+        % linear angular velocity
+        v_l = 0;
+        v_a = 0;
         
     end
     methods
@@ -163,6 +169,15 @@ classdef turtlebot3 < handle
             
             r = "ok";
         end
+        function r = turtlebot3_init_imu_theta(obj, theta)
+           obj.imu_initial_theta = theta;
+            r = "ok";
+        end
+        function r = turtlebot3_init_odom_theta(obj, theta)
+            obj.initial_theta = theta;
+            r = "ok";
+        end
+     
     end
 end
 
@@ -197,7 +212,8 @@ z_ = x_ + 1i * y_;
 obj.x = x_;
 obj.y = y_;
 obj.z = z_;
-
+% obj.v_l = obj.sub_odom_data.Twist.Twist.Linear.X;
+% obj.v_a = obj.sub_odom_data.Twist.Twist.Angular.Z;
 temp = [odom.Orientation.X, odom.Orientation.Y, odom.Orientation.Z, odom.Orientation.W];
 temp = quat2eul(temp, 'ZYX');
 obj.theta =  temp(3);

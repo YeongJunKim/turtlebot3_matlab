@@ -10,7 +10,7 @@ fprintf('ros start\r\n');
     
 rosshutdown;
 rosinit('http://192.168.0.5:11311/')
-sub.turtlebot3_lidar = rossubscriber('/tb3_5/scan','BufferSize', 1);
+sub.turtlebot3_lidar = rossubscriber('/tb3a/scan','BufferSize', 1);
 % sub.turtlebot3_state = rossubscriber('/gazebo/model_states');
 
 topic.lidar = receive(sub.turtlebot3_lidar);

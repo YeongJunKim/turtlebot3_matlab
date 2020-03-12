@@ -56,6 +56,10 @@ classdef turtlebot3 < handle
         imu_initial_theta = 0;
         imu_theta = 0;
         
+        % get from ahrsv1
+        ahrsv1_initial_theta = 0;
+        ahrsv1_theta = 0;
+        
         % linear angular velocity
         v_l = 0;
         v_a = 0;
@@ -177,7 +181,10 @@ classdef turtlebot3 < handle
             obj.initial_theta = theta;
             r = "ok";
         end
-     
+        function r = turtlebot3_init_ahrsv1_theta(obj, theta)
+            obj.ahrsv1_initial_theta = theta;
+            r = "ok";
+        end
     end
 end
 

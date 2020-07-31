@@ -1,5 +1,14 @@
-%% KOREA UNIVERCITY
-%% author : colson@korea.ac.kr(dud3722000@naver.com)
+% author: Yeong Jun Kim(colson)
+% email: colson@korea.ac.kr || dud3722000@naver.com
+% date: 2020-07-31
+% For turtlebot3 experiment with Matlab,
+
+% Usage :
+% robot = turtlebot3
+% namespace = ""
+% turtlebot3_init(robot, namespace);
+% 
+
 
 classdef turtlebot3 < handle
     properties

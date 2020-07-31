@@ -83,14 +83,6 @@ classdef turtlebot3_default < handle
                 r = receive(temp);
             end
         end
-        
-        function r = turtlebot3_pubTopicName(obj, topicName)
-            if(topicName == "cmd_vel")
-            else
-            end
-        end
-        
-        
         %% application area
         
     end

@@ -12,7 +12,6 @@
 
 classdef turtlebot3_default < handle
     properties
-        %% variable area
         %% TOPIC
         
         % namespace dfault is "";

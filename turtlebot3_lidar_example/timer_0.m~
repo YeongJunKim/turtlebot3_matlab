@@ -1,0 +1,9 @@
+function timer_0(obj, event)
+
+persistent firstrun
+
+if isemp
+
+
+
+end

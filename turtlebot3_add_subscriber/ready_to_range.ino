@@ -26,7 +26,7 @@ signed int range_step_mm = 1000;      // every 1000mm in range, one LED less wil
 
 uint8_t ranging_protocol = POZYX_RANGE_PROTOCOL_PRECISION; // ranging protocol of the Pozyx.
 
-uint16_t remote_id = 0x6913;          // the network ID of the remote device
+uint16_t remote_id = 0x6976;          // the network ID of the remote device
 bool remote = false;                  // whether to use the given remote device for ranging
 
 ////////////////////////////////////////////////
@@ -65,6 +65,10 @@ void setup(){
   Pozyx.setRangingProtocol(ranging_protocol, remote_id);
 }
 
+  device_range_t past_range_0;
+  device_range_t past_range_1;
+  device_range_t past_range_2;
+  device_range_t past_range_3;
   device_range_t range_0;         //timestamp, distance, RSS
   device_range_t range_1;         //timestamp, distance, RSS
   device_range_t range_2;         //timestamp, distance, RSS
@@ -103,43 +107,71 @@ void loop(){
     Serial.print("a 1 ");
     if(status_0 == POZYX_SUCCESS)
     {
-      if(range_0.distance > 10000)
-        Serial.print(0);
+      if(range_0.distance > 10000  || range_0.distance == 0)
+      {
+        Serial.print(past_range_0.distance);
+      }
       else
+      {
         Serial.print(range_0.distance);      
+        past_range_0 = range_0;
+      }
     }
     else
-    Serial.print(0);
+    {
+      Serial.print(past_range_0.distance);
+    }
     Serial.print(" ");
     if(status_1 == POZYX_SUCCESS)
     {
-      if(range_1.distance > 10000)
-        Serial.print(0);
+      if(range_1.distance > 10000 || range_1.distance == 0)
+      {
+        Serial.print(past_range_1.distance);
+      }
       else
+      {
         Serial.print(range_1.distance);   
+        past_range_1 = range_1;
+      }
     }
     else
-    Serial.print(0);
+    {
+      Serial.print(past_range_1.distance);
+    }
     Serial.print(" ");
     if(status_2 == POZYX_SUCCESS)
     {
-      if(range_2.distance > 10000)
-        Serial.print(0);
+      if(range_2.distance > 10000 || range_2.distance == 0)
+      {
+        Serial.print(past_range_2.distance);
+      }
       else
+      {
         Serial.print(range_2.distance);   
+        past_range_2 = range_2;
+      }
     }
     else
-    Serial.print(0);
+    {
+      Serial.print(past_range_2.distance);
+    }
     Serial.print(" ");
     if(status_3 == POZYX_SUCCESS)
     {
-      if(range_3.distance > 10000)
-        Serial.print(0);
+      if(range_3.distance > 10000 || range_3.distance == 0)
+      {
+        Serial.print(past_range_3.distance);
+      }
       else
+      {
         Serial.print(range_3.distance);   
+        past_range_3 = range_3;
+      }
     }
     else
-    Serial.print(0);
+    {
+      Serial.print(past_range_3.distance);
+    }
     Serial.println(" b");
      
     statusLedShow(status_0, status_1, status_2, status_3);
@@ -168,6 +200,7 @@ void loop(){
 //  else{
 ////    Serial.println("ERROR: ranging");
 //  }
+  delay(5);
 }
 
 

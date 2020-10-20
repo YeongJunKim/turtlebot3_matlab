@@ -76,6 +76,19 @@ classdef turtlebot3 < handle
     end
     methods
         %% function area
+        function obj = turtlebot3(namespace)
+            %% args
+            % namespace  : each robot's ROS namespace ex) (ROS_NAMESPACE=colsonbot roslaunch ~)
+            %subscriber
+            disp(namespace);
+            obj.namespace = namespace;
+            obj.sub_imu = rossubscriber(strcat(namespace,'/imu'), {@sub_imu_callback, obj});
+            obj.sub_scan = rossubscriber(strcat(namespace,'/scan'), {@sub_scan_callback, obj});
+            obj.sub_odom = rossubscriber(strcat(namespace,'/odom'), {@sub_odom_callback, obj});
+            
+            % publisher
+            [obj.pub_control, obj.pub_control_msg] = rospublisher(strcat(namespace,'/cmd_vel'), 'geometry_msgs/Twist');
+        end
         function obj = turtlebot3_init(obj, namespace)
             %% args
             % namespace  : each robot's ROS namespace ex) (ROS_NAMESPACE=colsonbot roslaunch ~)
@@ -89,7 +102,7 @@ classdef turtlebot3 < handle
             [obj.pub_control, obj.pub_control_msg] = rospublisher(strcat(namespace,'/cmd_vel'), 'geometry_msgs/Twist');
         end
         
-        function obj = turtlebot3_addSubscrier(obj, topic, callback)
+        function obj = turtlebot3_addSubscriver(obj, topic, callback)
             obj.sub_type(obj.addcount).data = rossubscriber(topic, {callback, obj});
             obj.sub_added(obj.addcount).data = obj.sub_type;
             obj.addcount = obj.addcount + 1;
@@ -210,13 +223,14 @@ obj.imu_theta = temp(3);
 end
 function sub_scan_callback(src, msg, obj)
 obj.sub_scan_data = msg;
-if(obj.lidar_seq ~= 0)
+% if(obj.lidar_seq ~= 0)
     obj.lidar_seq = obj.lidar_seq + 1;
-    obj.lidar_data(:) = obj.sub_scan_data.Ranges(:);
-    x = obj.lidar_data(:)' .* cos(deg2rad(1+obj.lidar_rotation_angle:obj.lidar_accuracy+obj.lidar_rotation_angle));
-    y = obj.lidar_data(:)' .* sin(deg2rad(1+obj.lidar_rotation_angle:obj.lidar_accuracy+obj.lidar_rotation_angle));
-    obj.lidar_xy(1,:) = x(:); obj.lidar_xy(2,:) = y(:);
-end
+    
+    obj.lidar_data = obj.sub_scan_data.Ranges(:);
+%     x = obj.lidar_data(:)' .* cos(deg2rad(1+obj.lidar_rotation_angle:obj.lidar_accuracy+obj.lidar_rotation_angle));
+%     y = obj.lidar_data(:)' .* sin(deg2rad(1+obj.lidar_rotation_angle:obj.lidar_accuracy+obj.lidar_rotation_angle));
+%     obj.lidar_xy(1,:) = x(:); obj.lidar_xy(2,:) = y(:);
+% end
 
 end
 function sub_odom_callback(src, msg, obj)

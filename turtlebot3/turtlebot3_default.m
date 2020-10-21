@@ -17,10 +17,10 @@ classdef turtlebot3_default < handle
         % namespace dfault is "";
         namespace = "";
         % default subscriber
-        sub_imu = []; sub_scan = []; sub_odom = []; sub_ahrsv1 = [];
+        sub_imu = []; sub_scan = []; sub_odom = []; sub_ahrsv1 = []; sub_input = [];
         
         % sub_data
-        sub_imu_data = []; sub_scan_data = []; sub_odom_data = []; sub_ahrsv1_data = []; lidar_data = [];
+        sub_input_data = []; sub_imu_data = []; sub_scan_data = []; sub_odom_data = []; sub_ahrsv1_data = []; lidar_data = [];
         
         % lidar
         lidar_rotation_angle = 90;
@@ -55,23 +55,38 @@ classdef turtlebot3_default < handle
     end
     methods
         %% function area
-        function obj = turtlebot3_default(namespace)
+        function obj = turtlebot3_default(namespace, iscallbcak)
             % arguments
             % namespace  : each robot's ROS namespace ex) (ROS_NAMESPACE=colsonbot roslaunch ~)
             disp(namespace)
             %subscriber
             obj.namespace = namespace;
+            if iscallbcak == 1
             obj.sub_imu = rossubscriber(strcat(namespace,'/imu'), {@sub_imu_callback, obj});
             obj.sub_scan = rossubscriber(strcat(namespace,'/scan'), {@sub_scan_callback, obj});
             obj.sub_odom = rossubscriber(strcat(namespace,'/odom'), {@sub_odom_callback, obj});
             obj.sub_ahrsv1 = rossubscriber(strcat(namespace,'/mw_ahrsv1/imu'), {@sub_ahrsv1_callback, obj});
+            else
+            obj.sub_imu = rossubscriber(strcat(namespace,'/imu'));
+            obj.sub_scan = rossubscriber(strcat(namespace,'/scan'));
+            obj.sub_odom = rossubscriber(strcat(namespace,'/odom'));
+            obj.sub_ahrsv1 = rossubscriber(strcat(namespace,'/mw_ahrsv1/imu'));
+            obj.sub_input  = rossubscriber(strcat(namespace,'/cmd_vel'));
+            end
             
             % publisher
             [obj.pub_control, obj.pub_control_msg] = rospublisher(strcat(namespace,'/cmd_vel'), 'geometry_msgs/Twist');
         end
         
         function obj = turtlebot3_addSubscriver(obj, topic, callback)
-            obj.sub_type(obj.addcount).data = rossubscriber(topic, {callback, obj});
+            disp("add subscriber");
+            
+            if(callback ~= 0)
+                obj.sub_type(obj.addcount).data = rossubscriber(topic, {callback, obj});
+            else
+                obj.sub_type(obj.addcount).data = rossubscriber(topic);
+            end
+            
             obj.sub_added(obj.addcount).data = obj.sub_type;
             obj.addcount = obj.addcount + 1;
         end

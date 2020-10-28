@@ -50,6 +50,9 @@ classdef turtlebot3_default < handle
         v_l = 0;
         v_a = 0;
         
+        
+        cmd_vel = [];
+        
         run_time_info;
         
     end
@@ -61,6 +64,7 @@ classdef turtlebot3_default < handle
             disp(namespace)
             %subscriber
             obj.namespace = namespace;
+            obj.cmd_vel = zeros(2,1);
             if iscallbcak == 1
             obj.sub_imu = rossubscriber(strcat(namespace,'/imu'), {@sub_imu_callback, obj});
             obj.sub_scan = rossubscriber(strcat(namespace,'/scan'), {@sub_scan_callback, obj});
@@ -71,7 +75,7 @@ classdef turtlebot3_default < handle
             obj.sub_scan = rossubscriber(strcat(namespace,'/scan'));
             obj.sub_odom = rossubscriber(strcat(namespace,'/odom'));
             obj.sub_ahrsv1 = rossubscriber(strcat(namespace,'/mw_ahrsv1/imu'));
-            obj.sub_input  = rossubscriber(strcat(namespace,'/cmd_vel'));
+            obj.sub_input  = rossubscriber(strcat(namespace,'/cmd_vel'), {@sub_cmd_vel_callbcak, obj});
             end
             
             % publisher
@@ -107,6 +111,16 @@ classdef turtlebot3_default < handle
 end
 
 %% callback
+
+function sub_cmd_vel_callbcak(src, msg, obj)
+    sub_cmd_vel = msg;
+v_l = sub_cmd_vel.Linear.X;
+v_a = sub_cmd_vel.Angular.Z;
+temp = [v_l v_a]';
+obj.cmd_vel = temp;
+
+end
+
 function sub_imu_callback(src, msg, obj)
 obj.sub_imu_data = msg;
 % obj.imu_theta = obj.sub_imu_data.Orientation.W;

@@ -67,7 +67,9 @@ classdef turtlebot3_default < handle
             obj.cmd_vel = zeros(2,1);
             if iscallbcak == 1
                 obj.sub_imu = rossubscriber(strcat(namespace,'/imu'), {@sub_imu_callback, obj});
+                if isknown ~= 1
                 obj.sub_scan = rossubscriber(strcat(namespace,'/scan'), {@sub_scan_callback, obj});
+                end
                 obj.sub_odom = rossubscriber(strcat(namespace,'/odom'), {@sub_odom_callback, obj});
                 obj.sub_ahrsv1 = rossubscriber(strcat(namespace,'/mw_ahrsv1/imu'), {@sub_ahrsv1_callback, obj});
                 obj.sub_input  = rossubscriber(strcat(namespace,'/cmd_vel'), {@sub_cmd_vel_callbcak, obj});
